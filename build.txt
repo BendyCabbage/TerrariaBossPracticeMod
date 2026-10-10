@@ -1,0 +1,5 @@
+displayName = Boss Practice
+author = Josh Caithness
+version = 0.1
+homepage =
+side = Both

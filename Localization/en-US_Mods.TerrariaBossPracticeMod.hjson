@@ -1,0 +1,28 @@
+Keybinds: {
+	TogglePracticeMenu.DisplayName: Toggle Boss Practice Menu
+}
+
+Configs: {
+	PracticeConfig: {
+		DisplayName: Boss Practice Settings
+
+		DisableLootAndProgression: {
+			Label: Disable loot and world progression
+			Tooltip:
+				'''
+				Practice bosses drop nothing and don't trigger death events:
+				no "downed" flags, no hardmode from the Wall of Flesh, no lunar events from the Lunatic Cultist.
+				'''
+		}
+
+		DespawnBossesBeforeSpawning: {
+			Label: Despawn existing bosses before spawning
+			Tooltip: Removes any boss already alive (and its parts) so every practice attempt starts clean.
+		}
+
+		ClearHostileProjectilesOnDespawn: {
+			Label: Clear hostile projectiles on "Despawn all"
+			Tooltip: Also removes enemy projectiles still flying around when you despawn bosses.
+		}
+	}
+}

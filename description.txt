@@ -1,0 +1,14 @@
+Practice any boss fight on demand.
+
+Press P (rebindable in Controls) to open the Boss Practice menu:
+ - Pick any vanilla boss (or any modded boss)
+ - Choose how much health it starts with, or jump straight to a specific phase
+ - Spawn it, despawn it, or make it night with one click
+
+You can also use the chat command:
+ /practice list
+ /practice <boss> [health%] [phase <n>]
+ /practice clear
+ /practice night
+
+By default, practice bosses drop no loot and do not affect world progression (no hardmode from Wall of Flesh, no lunar events from the Lunatic Cultist, no "downed" flags). This can be changed in the mod config.

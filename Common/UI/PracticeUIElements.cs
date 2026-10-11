@@ -60,7 +60,7 @@ public sealed class BossListEntry : PracticeButton
 	{
 		base.DrawSelf(spriteBatch);
 
-		int headIndex = NPCID.Sets.BossHeadTextures[Boss.PrimaryType];
+		int headIndex = Boss.HeadIconIndex;
 		if (headIndex < 0 || headIndex >= TextureAssets.NpcHeadBoss.Length) {
 			return;
 		}

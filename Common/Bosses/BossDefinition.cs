@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 
 namespace TerrariaBossPracticeMod.Common.Bosses;
 
@@ -65,7 +66,7 @@ public sealed class BossDefinition
 
 	public string[] Aliases { get; init; } = [];
 
-	/// <summary>The NPC used for the boss's name and map icon.</summary>
+	/// <summary>The NPC used for the boss's name and, when it has one, map icon.</summary>
 	public int PrimaryType { get; }
 
 	/// <summary>NPC types spawned directly. Most bosses spawn their own parts from their AI.</summary>
@@ -94,6 +95,14 @@ public sealed class BossDefinition
 	public string DisplayName => displayName ?? Lang.GetNPCNameValue(PrimaryType);
 
 	public IEnumerable<int> RequiredTypes => ReadyTypes ?? HealthTypes;
+
+	/// <summary>
+	/// Index into the boss head textures, or -1 if none. Some primary NPCs have no icon of their own
+	/// (Golem's body, Moon Lord's core), so this falls back to the other parts of the fight.
+	/// </summary>
+	public int HeadIconIndex => HealthTypes.Prepend(PrimaryType)
+		.Select(type => NPCID.Sets.BossHeadTextures[type])
+		.FirstOrDefault(index => index >= 0, -1);
 
 	public bool Matches(string query)
 	{

@@ -20,7 +20,8 @@ public sealed class PracticeCommand : ModCommand
 		"/practice list\n" +
 		"/practice <boss> [health%] [phase <n>]\n" +
 		"/practice clear\n" +
-		"/practice night";
+		"/practice night\n" +
+		"/practice day";
 
 	public override string Description => "Spawn a boss for practice at a chosen health percentage or phase.";
 
@@ -40,6 +41,9 @@ public sealed class PracticeCommand : ModCommand
 				return;
 			case "night":
 				PracticeManager.MakeNight(caller.Player);
+				return;
+			case "day":
+				PracticeManager.MakeDay(caller.Player);
 				return;
 		}
 

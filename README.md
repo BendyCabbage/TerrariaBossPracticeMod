@@ -42,6 +42,7 @@ You can change the health after picking a preset. For example, "Hands destroyed"
 /practice <boss> [health%] [phase <n>] spawn a boss
 /practice clear                        despawn all bosses and hostile projectiles
 /practice night                        set the time to dusk
+/practice day                          set the time to dawn
 ```
 
 Examples: `/practice eoc 30`, `/practice twins phase 2`, `/practice moon lord p2 50`, `/practice plantera`.

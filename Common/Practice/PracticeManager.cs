@@ -271,6 +271,18 @@ public static class PracticeManager
 		Announce($"[Practice] {requester.name} set the time to dusk.", InfoColor);
 	}
 
+	/// <summary>Server / singleplayer only.</summary>
+	public static void MakeDay(Player requester)
+	{
+		Main.dayTime = true;
+		Main.time = 0;
+		if (Main.netMode == NetmodeID.Server) {
+			NetMessage.SendData(MessageID.WorldData);
+		}
+
+		Announce($"[Practice] {requester.name} set the time to dawn.", InfoColor);
+	}
+
 	public static void Announce(string message, Color color)
 	{
 		if (Main.netMode == NetmodeID.Server) {

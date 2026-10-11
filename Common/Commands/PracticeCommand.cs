@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.Linq;
 using Terraria.ModLoader;
-using TerrariaBossPracticeMod.Common.Bosses;
-using TerrariaBossPracticeMod.Common.Practice;
+using BossPractice.Common.Bosses;
+using BossPractice.Common.Practice;
 
-namespace TerrariaBossPracticeMod.Common.Commands;
+namespace BossPractice.Common.Commands;
 
 /// <summary>
 /// Chat command alternative to the menu. Runs on the server in multiplayer.

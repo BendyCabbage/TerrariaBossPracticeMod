@@ -7,10 +7,10 @@ using Terraria.Chat;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using TerrariaBossPracticeMod.Common.Bosses;
-using TerrariaBossPracticeMod.Common.Configs;
+using BossPractice.Common.Bosses;
+using BossPractice.Common.Configs;
 
-namespace TerrariaBossPracticeMod.Common.Practice;
+namespace BossPractice.Common.Practice;
 
 /// <summary>
 /// Spawns and despawns practice bosses. Everything that changes the world runs on the server

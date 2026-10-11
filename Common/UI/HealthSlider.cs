@@ -4,9 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.UI;
-using TerrariaBossPracticeMod.Common.Practice;
+using BossPractice.Common.Practice;
 
-namespace TerrariaBossPracticeMod.Common.UI;
+namespace BossPractice.Common.UI;
 
 /// <summary>A draggable bar for picking a health percentage, with markers at each phase's starting health.</summary>
 public sealed class HealthSlider : UIElement

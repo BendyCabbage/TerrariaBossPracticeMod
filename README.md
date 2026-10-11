@@ -60,11 +60,11 @@ You can name a boss by its key (`eye`, `wof`, `ml`…), by its full name, or by 
 ## Building
 
 1. Put this folder in your tModLoader `ModSources` directory. On macOS that's
-   `~/Library/Application Support/Terraria/tModLoader/ModSources/TerrariaBossPracticeMod`.
+   `~/Library/Application Support/Terraria/tModLoader/ModSources/BossPractice`.
    Clone or copy it there. Don't symlink it: the `.csproj` imports `../tModLoader.targets` relative to the folder's real path, so the build won't find it through a symlink.
 2. In tModLoader, go to **Workshop → Develop Mods** and click **Build + Reload** on *Boss Practice*.
 
-You can also build it from the command line with `dotnet build` inside `ModSources/TerrariaBossPracticeMod`.
+You can also build it from the command line with `dotnet build` inside `ModSources/BossPractice`.
 
 ## Project layout
 

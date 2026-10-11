@@ -7,7 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
 
-namespace TerrariaBossPracticeMod.Common.UI;
+namespace BossPractice.Common.UI;
 
 [Autoload(Side = ModSide.Client)]
 public sealed class PracticeUISystem : ModSystem
@@ -83,7 +83,7 @@ public sealed class PracticeUISystem : ModSystem
 		}
 
 		layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
-			"TerrariaBossPracticeMod: Practice Menu",
+			"BossPractice: Practice Menu",
 			() => {
 				if (IsVisible) {
 					userInterface.Draw(Main.spriteBatch, lastGameTime);

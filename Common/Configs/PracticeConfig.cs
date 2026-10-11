@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Terraria.ModLoader.Config;
 
-namespace TerrariaBossPracticeMod.Common.Configs;
+namespace BossPractice.Common.Configs;
 
 public sealed class PracticeConfig : ModConfig
 {

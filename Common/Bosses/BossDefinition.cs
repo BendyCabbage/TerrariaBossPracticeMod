@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 
-namespace TerrariaBossPracticeMod.Common.Bosses;
+namespace BossPractice.Common.Bosses;
 
 public enum SpawnStyle
 {

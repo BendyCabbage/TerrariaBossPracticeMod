@@ -2,9 +2,9 @@ using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerrariaBossPracticeMod.Common.Practice;
+using BossPractice.Common.Practice;
 
-namespace TerrariaBossPracticeMod;
+namespace BossPractice;
 
 public sealed class BossPracticeMod : Mod
 {

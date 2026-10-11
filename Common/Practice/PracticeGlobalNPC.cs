@@ -2,9 +2,9 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
-using TerrariaBossPracticeMod.Common.Configs;
+using BossPractice.Common.Configs;
 
-namespace TerrariaBossPracticeMod.Common.Practice;
+namespace BossPractice.Common.Practice;
 
 /// <summary>
 /// Tags every NPC that belongs to a practice fight: the boss itself, plus anything it (or its parts) spawn.

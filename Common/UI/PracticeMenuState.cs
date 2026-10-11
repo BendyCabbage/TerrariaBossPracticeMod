@@ -5,10 +5,10 @@ using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameInput;
 using Terraria.UI;
-using TerrariaBossPracticeMod.Common.Bosses;
-using TerrariaBossPracticeMod.Common.Practice;
+using BossPractice.Common.Bosses;
+using BossPractice.Common.Practice;
 
-namespace TerrariaBossPracticeMod.Common.UI;
+namespace BossPractice.Common.UI;
 
 public sealed class PracticeMenuState : UIState
 {
@@ -245,7 +245,7 @@ public sealed class PracticeMenuState : UIState
 
 		if (panel.ContainsPoint(Main.MouseScreen)) {
 			Main.LocalPlayer.mouseInterface = true;
-			PlayerInput.LockVanillaMouseScroll("TerrariaBossPracticeMod/PracticeMenu");
+			PlayerInput.LockVanillaMouseScroll("BossPractice/PracticeMenu");
 		}
 	}
 }

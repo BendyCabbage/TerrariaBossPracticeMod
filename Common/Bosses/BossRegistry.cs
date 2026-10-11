@@ -5,7 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace TerrariaBossPracticeMod.Common.Bosses;
+namespace BossPractice.Common.Bosses;
 
 /// <summary>
 /// The list of bosses that can be practiced. Vanilla bosses have hand-tuned phase presets whose thresholds

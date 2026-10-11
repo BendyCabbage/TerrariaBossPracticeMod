@@ -6,9 +6,9 @@ using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.UI;
-using TerrariaBossPracticeMod.Common.Bosses;
+using BossPractice.Common.Bosses;
 
-namespace TerrariaBossPracticeMod.Common.UI;
+namespace BossPractice.Common.UI;
 
 /// <summary>A clickable text panel that highlights on hover and when selected.</summary>
 public class PracticeButton : UITextPanel<string>

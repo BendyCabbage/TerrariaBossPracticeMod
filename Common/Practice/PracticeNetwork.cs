@@ -1,9 +1,9 @@
 using System.IO;
 using Terraria;
 using Terraria.ModLoader;
-using TerrariaBossPracticeMod.Common.Bosses;
+using BossPractice.Common.Bosses;
 
-namespace TerrariaBossPracticeMod.Common.Practice;
+namespace BossPractice.Common.Practice;
 
 public enum PracticeMessageType : byte
 {

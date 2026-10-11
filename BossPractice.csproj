@@ -6,7 +6,7 @@
 
   <!-- General -->
   <PropertyGroup>
-    <AssemblyName>TerrariaBossPracticeMod</AssemblyName>
+    <AssemblyName>BossPractice</AssemblyName>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 

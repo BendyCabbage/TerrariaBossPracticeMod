@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 
 namespace BossPractice.Common.Bosses.Sources;
 
-/// <summary>Infernum presets for Calamity's bosses, and Infernum's own Bereft Vassal.</summary>
+/// <summary>Infernum presets for Calamity's bosses up to Astrum Deus, and Infernum's own Bereft Vassal.</summary>
 public sealed partial class InfernumBosses
 {
 	partial void AddBereftVassal(BossRegistrar registrar)
@@ -165,9 +163,5 @@ public sealed partial class InfernumBosses
 			new BossPhase("Phase 2", 0.59f, "Adds constellation explosions, vortexes and a solar system, below 60% health."),
 			new BossPhase("Phase 3", 0.32f, "Flies up to shed its shell, then warp charges and dark god outbursts, below 33% health."),
 		], "Enrages if you go far to the side of its beacon. Doesn't split in two.");
-	}
-
-	private void ModifyPostMoonLordBosses(BossRegistrar registrar)
-	{
 	}
 }

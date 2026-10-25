@@ -59,9 +59,19 @@ Bosses from enabled mods are listed after (or between) the vanilla bosses in pro
 | Calamity | Every boss with phase presets, plus Revengeance/Death/Boss Rush presets for the vanilla bosses Calamity reworks |
 | Thorium | Every boss with phase presets |
 | Fargo's Souls | Every boss with phase presets, plus Eternity Mode presets for vanilla bosses |
+| Calamity Infernum Mode | Infernum presets for every vanilla and Calamity boss it reworks, plus its own Bereft Vassal |
 | Any other mod | Bosses are found automatically (any NPC flagged as a boss) and support the health slider only |
 
 When a difficulty mode changes a boss's phases, the menu shows which presets are active (e.g. *Calamity Mod - Revengeance presets*).
+
+### Infernum Mode
+
+While the world has Infernum's difficulty on, its presets replace the Revengeance ones. The thresholds come from Infernum's own phase markers (2.0.1.35). A few Infernum fights need extra setup, which the presets handle:
+
+- **Signus, Storm Weaver and Ceaseless Void** normally sit idle until you use a Rune of Kos. Their presets start the fight the same way the rune does.
+- **Eater of Worlds** has *Two worms* and *Four worms* presets that recreate its splits. The **Exo Mechs** run Infernum's real sequence, where a second mech joins below 50% health; the *Exo Mechs* entry offers every order Draedon does.
+- **Devourer of Gods**, **Yharon** and **Supreme Calamitas** have presets that skip their phase 2 or desperation transitions.
+- **Bereft Vassal** spawns next to you and skips the Lost Colosseum intro. **Profaned Guardians** and **Providence** still need Infernum's Profaned Garden arena.
 
 ## Things to know
 

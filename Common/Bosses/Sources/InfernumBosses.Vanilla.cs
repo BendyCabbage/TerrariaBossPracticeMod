@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace BossPractice.Common.Bosses.Sources;
 
@@ -82,12 +82,16 @@ public sealed partial class InfernumBosses
 			// A twin in its second form can't be hurt while the other is still in its first, so both start below it.
 			new BossPhase("Phase 2", 0.74f, "Both twins open their mouths and add flamethrower bursts, below 75% health."),
 			new BossPhase("Phase 3", 0.41f, "Adds chaotic fire and a downward laser, below 42.5% of their combined health."),
-			// Killing one twin leaves the other alone; below 30% it skips the heal it gets when its partner dies.
-			new BossPhase("Retinazer alone", 0.29f, "Spazmatism is already dead; Retinazer uses its solo overdrive attacks.",
-				PhaseSetups.KillAll(NPCID.Spazmatism)),
-			new BossPhase("Spazmatism alone", 0.29f, "Retinazer is already dead; Spazmatism uses its solo overdrive attacks.",
-				PhaseSetups.KillAll(NPCID.Retinazer)),
-		], "Flee during the day. A twin at 5% health shields itself until its partner dies, then heals to 30%.");
+			// A twin refuses to die while its partner lives, so these spawn the survivor on its own instead.
+			new BossPhase("Retinazer alone", 0.29f, "Spazmatism is already dead; Retinazer uses its solo overdrive attacks.") {
+				Spawner = (player, boss) => BossSpawners.SpawnNear(player, NPCID.Retinazer, boss.FallbackOffset),
+			},
+			new BossPhase("Spazmatism alone", 0.29f, "Retinazer is already dead; Spazmatism uses its solo overdrive attacks.") {
+				Spawner = (player, boss) => BossSpawners.SpawnNear(player, NPCID.Spazmatism, boss.FallbackOffset),
+			},
+		], "Flee during the day. A twin at 5% health shields itself until its partner dies, then heals to 30%.",
+			// Apply health as soon as either twin exists; waiting for both would stall the solo presets.
+			readyTypes: []);
 
 		// The phase only changes the attack picked after its opening charge.
 		AddVariant(registrar, vanilla, "destroyer", [
@@ -209,7 +213,7 @@ public sealed partial class InfernumBosses
 	/// <summary>Creates Deerclops's ring of shadow hands around its target, as its phase 2 transition does.</summary>
 	private void SpawnShadowHandArena(NPC npc)
 	{
-		if (!Terraria.ModLoader.ModContent.TryFind(ModName, "ShadowHandArena", out Terraria.ModLoader.ModProjectile arena)) {
+		if (!ModContent.TryFind(ModName, "ShadowHandArena", out ModProjectile arena)) {
 			return;
 		}
 

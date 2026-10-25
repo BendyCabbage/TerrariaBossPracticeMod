@@ -7,7 +7,7 @@ namespace BossPractice.Common.Bosses.Sources;
 /// <summary>
 /// Infernum Mode, a Calamity addon that replaces the AI of most vanilla and Calamity bosses while its difficulty is on.
 /// Adds "Infernum" phase variants to those bosses, plus Infernum's own Bereft Vassal.
-/// Split across files: <c>InfernumBosses.Vanilla.cs</c> and <c>InfernumBosses.Calamity.cs</c>.
+/// Split across files: <c>InfernumBosses.Vanilla.cs</c>, <c>InfernumBosses.Calamity.cs</c> and <c>InfernumBosses.PostMoonLord.cs</c>.
 /// Thresholds come from each boss's <c>PhaseLifeRatioThresholds</c> in Infernum's source (2.0.1.35).
 /// </summary>
 public sealed partial class InfernumBosses : BossSource

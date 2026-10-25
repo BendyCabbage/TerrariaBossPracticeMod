@@ -36,13 +36,19 @@ public abstract class BossSource : ModType
 	/// Finds an NPC from <see cref="ModName"/> by its class name. Returns 0 and logs a warning when it doesn't exist
 	/// (for example after the mod renames it), which makes <see cref="BossRegistrar.Add"/> skip the boss using it.
 	/// </summary>
-	protected int NPCType(string name)
+	protected int NPCType(string name) => NPCType(ModName, name);
+
+	/// <summary>
+	/// Finds an NPC from another mod by its class name, for sources whose mod builds on another one (e.g. Infernum
+	/// reworking Calamity's bosses). Returns 0 and logs a warning when it doesn't exist.
+	/// </summary>
+	protected int NPCType(string modName, string name)
 	{
-		if (ModContent.TryFind(ModName, name, out ModNPC npc)) {
+		if (ModContent.TryFind(modName, name, out ModNPC npc)) {
 			return npc.Type;
 		}
 
-		Mod.Logger.Warn($"{ModName} has no NPC named {name}; bosses using it won't be listed.");
+		Mod.Logger.Warn($"{modName} has no NPC named {name}; bosses using it won't be listed.");
 		return 0;
 	}
 

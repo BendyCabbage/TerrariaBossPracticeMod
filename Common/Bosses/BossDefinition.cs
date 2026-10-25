@@ -72,6 +72,9 @@ public sealed class PhaseVariant(string label, Func<bool> isActive, IReadOnlyLis
 	/// another mod's difficulty, e.g. Infernum replaces the AI that Calamity's Revengeance presets describe.
 	/// </summary>
 	public int Priority { get; init; }
+
+	/// <summary>Replaces <see cref="BossDefinition.ReadyTypes"/> while this variant is active, for reworks that spawn different parts.</summary>
+	public int[] ReadyTypes { get; init; }
 }
 
 public sealed class BossDefinition
@@ -168,7 +171,7 @@ public sealed class BossDefinition
 
 	public string DisplayName => displayName ?? Lang.GetNPCNameValue(PrimaryType);
 
-	public IEnumerable<int> RequiredTypes => ReadyTypes ?? HealthTypes;
+	public IEnumerable<int> RequiredTypes => ActiveVariant?.ReadyTypes ?? ReadyTypes ?? HealthTypes;
 
 	/// <summary>Every NPC type that belongs to this fight.</summary>
 	public IReadOnlySet<int> AllTypes => allTypes ??= [.. SpawnTypes, .. HealthTypes, .. ReadyTypes ?? [], .. RelatedTypes, PrimaryType];

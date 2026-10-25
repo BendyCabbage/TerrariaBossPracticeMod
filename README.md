@@ -5,7 +5,8 @@ Spawn any Terraria boss on demand. You choose how much health it starts with, or
 ## Features
 
 - **Practice menu** (press `P` by default; you can rebind it in Settings → Controls):
-  - Every vanilla boss in progression order, plus any boss added by other mods
+  - Every vanilla boss in progression order, plus the bosses of every enabled mod (see [Mod support](#mod-support))
+  - **Mod tabs** and a **search box** to filter the list; it stays in progression order
   - A **starting health** slider (1–100%) with fine-tune buttons. Markers on the slider show where each phase starts
   - **Starting point** presets for each boss phase (see below)
   - **Spawn**, **Despawn all** and **Make night** buttons
@@ -38,7 +39,7 @@ You can change the health after picking a preset. For example, "Hands destroyed"
 ## Chat command
 
 ```
-/practice list                         list every boss and its phases
+/practice list [mod]                   list every boss (optionally only one mod's) and its phases
 /practice <boss> [health%] [phase <n>] spawn a boss
 /practice clear                        despawn all bosses and hostile projectiles
 /practice night                        set the time to dusk
@@ -47,7 +48,20 @@ You can change the health after picking a preset. For example, "Hands destroyed"
 
 Examples: `/practice eoc 30`, `/practice twins phase 2`, `/practice moon lord p2 50`, `/practice plantera`.
 
-You can name a boss by its key (`eye`, `wof`, `ml`…), by its full name, or by its internal name (modded bosses).
+You can name a boss by its short name (`eye`, `wof`, `ml`…), its full name, or its key (`CalamityMod/DevourerofGods`). `/practice list` shows every key.
+
+## Mod support
+
+Bosses from enabled mods are listed after (or between) the vanilla bosses in progression order, using the same scale as Boss Checklist.
+
+| Mod | Support |
+| --- | --- |
+| Calamity | Every boss with phase presets, plus Revengeance/Death/Boss Rush presets for the vanilla bosses Calamity reworks |
+| Thorium | Every boss with phase presets |
+| Fargo's Souls | Every boss with phase presets, plus Eternity Mode presets for vanilla bosses |
+| Any other mod | Bosses are found automatically (any NPC flagged as a boss) and support the health slider only |
+
+When a difficulty mode changes a boss's phases, the menu shows which presets are active (e.g. *Calamity Mod - Revengeance presets*).
 
 ## Things to know
 
@@ -70,7 +84,8 @@ You can also build it from the command line with `dotnet build` inside `ModSourc
 
 ```
 BossPracticeMod.cs                 Mod entry point; routes network packets
-Common/Bosses/                     Boss + phase definitions (BossRegistry has every vanilla preset)
+Common/Bosses/                     Boss + phase model, spawners, phase setups, and BossRegistry (builds the list)
+Common/Bosses/Sources/             One BossSource per supported mod (VanillaBosses, CalamityBosses, ...)
 Common/Practice/PracticeManager.cs Server-side spawn / health / phase setup / despawn logic
 Common/Practice/PracticeGlobalNPC  Tags practice NPCs (and anything they spawn); blocks loot and progression
 Common/Practice/PracticeNetwork.cs Client → server requests
@@ -78,3 +93,37 @@ Common/Commands/                   /practice chat command
 Common/UI/                         Practice menu, health slider, keybind
 Common/Configs/                    Server-side config
 ```
+
+## Adding support for another mod
+
+Each supported mod has a `BossSource` subclass in `Common/Bosses/Sources/`. Sources are found automatically and only load while their mod is enabled, so adding a mod means adding one file:
+
+```csharp
+public sealed class ExampleModBosses : BossSource
+{
+	public override string ModName => "ExampleMod"; // the mod's internal name
+
+	public override void AddBosses(BossRegistrar registrar)
+	{
+		int head = NPCType("ExampleWormHead"); // looked up by class name; no reference to the mod's DLL
+		registrar.Add(new BossDefinition("ExampleWorm", head) {
+			Progression = 5.5f, // between Skeletron (5) and Deerclops (6); use the value from the mod's Boss Checklist entry
+			Aliases = ["worm"],
+			RelatedTypes = [NPCType("ExampleWormBody"), NPCType("ExampleWormTail")], // parts flagged as bosses
+			DefaultPhases = [
+				BossPhase.FullFight,
+				new BossPhase("Phase 2", 0.49f, "Below 50% health."),
+			],
+		});
+	}
+}
+```
+
+Things a source can use:
+
+- **`BossDefinition`**: `HealthTypes` (which NPCs get the chosen health), `ReadyTypes` (parts to wait for before applying it), `RelatedTypes`, `Spawner` (see `BossSpawners`), `CheckCanSpawn`, `Notes`, `SetupTimeoutTicks`, and `StageTransitionTypes` (parts whose own `PreKill` spawns the next stage, which must still run when loot is disabled).
+- **`BossPhase`**: a starting health (a fixed value, or a function for difficulty-dependent thresholds), an optional `Setup` run once the fight exists (see `PhaseSetups`: kill parts, set AI values, ...) and an optional per-phase `Spawner`.
+- **`PhaseVariant`**: a whole set of phases that replaces the defaults while a condition holds, e.g. a difficulty mode. `ModifyBosses` can add these to other sources' bosses, including vanilla ones.
+- **`CallMod`**: calls the mod's public `Mod.Call` API, for example to check a difficulty mode.
+
+If the mod renames an NPC, only the bosses using it are skipped (with a warning in `client.log`); they then show up through automatic discovery instead.

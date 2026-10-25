@@ -15,10 +15,14 @@ public sealed class PracticeUISystem : ModSystem
 	private static UserInterface userInterface;
 	private static PracticeMenuState menuState;
 	private static GameTime lastGameTime;
+	private static bool blockingInput;
 
 	public static ModKeybind ToggleMenuKeybind { get; private set; }
 
 	public static bool IsVisible => userInterface?.CurrentState != null;
+
+	/// <summary>True while the player is typing in the menu's search box.</summary>
+	public static bool IsTyping => IsVisible && menuState?.IsTyping == true;
 
 	public override void Load()
 	{
@@ -32,6 +36,10 @@ public sealed class PracticeUISystem : ModSystem
 		userInterface = null;
 		menuState = null;
 		lastGameTime = null;
+		if (blockingInput) {
+			Main.blockInput = false;
+			blockingInput = false;
+		}
 	}
 
 	public override void OnWorldUnload()
@@ -73,6 +81,16 @@ public sealed class PracticeUISystem : ModSystem
 		if (IsVisible) {
 			userInterface.Update(gameTime);
 		}
+
+		// Keep typed letters from also moving the player or triggering hotkeys.
+		if (IsTyping) {
+			Main.blockInput = true;
+			blockingInput = true;
+		}
+		else if (blockingInput) {
+			Main.blockInput = false;
+			blockingInput = false;
+		}
 	}
 
 	public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
@@ -99,7 +117,7 @@ public sealed class PracticeKeybindPlayer : ModPlayer
 {
 	public override void ProcessTriggers(TriggersSet triggersSet)
 	{
-		if (PracticeUISystem.ToggleMenuKeybind?.JustPressed == true) {
+		if (PracticeUISystem.ToggleMenuKeybind?.JustPressed == true && !PracticeUISystem.IsTyping) {
 			PracticeUISystem.Toggle();
 		}
 	}

@@ -20,10 +20,8 @@ public static class PracticeManager
 {
 	public const float MinHealthPercent = 0.01f;
 
-	/// <summary>Give up waiting for a boss's parts after this many ticks and apply health with whatever exists.</summary>
-	private const int SetupTimeoutTicks = 600;
-
 	private static readonly List<PendingSetup> pendingSetups = [];
+	private static readonly List<ActiveSession> activeSessions = [];
 	private static int lastSessionId;
 
 	/// <summary>While non-zero, every NPC spawned is tagged with this practice session.</summary>
@@ -41,7 +39,7 @@ public static class PracticeManager
 	public static void RequestSpawn(BossDefinition boss, float healthPercent, int phaseIndex)
 	{
 		if (Main.netMode == NetmodeID.MultiplayerClient) {
-			PracticeNetwork.SendSpawnRequest(BossRegistry.IndexOf(boss), healthPercent, phaseIndex);
+			PracticeNetwork.SendSpawnRequest(boss.Key, healthPercent, phaseIndex);
 			return;
 		}
 
@@ -79,8 +77,9 @@ public static class PracticeManager
 			return false;
 		}
 
-		if (boss.Style == SpawnStyle.WallOfFlesh && !player.ZoneUnderworldHeight) {
-			Reply(player, $"[Practice] {boss.DisplayName} can only be spawned in the Underworld.", ErrorColor);
+		string spawnError = boss.CheckCanSpawn?.Invoke(player);
+		if (spawnError != null) {
+			Reply(player, $"[Practice] {spawnError}", ErrorColor);
 			return false;
 		}
 
@@ -92,9 +91,7 @@ public static class PracticeManager
 		CapturingSessionId = sessionId;
 		CapturedNPCs.Clear();
 		try {
-			foreach (int type in boss.SpawnTypes) {
-				SpawnPart(player, boss, type);
-			}
+			(phase?.Spawner ?? boss.Spawner)(player, boss);
 		}
 		finally {
 			CapturingSessionId = 0;
@@ -107,34 +104,18 @@ public static class PracticeManager
 
 		CapturedNPCs.Clear();
 		pendingSetups.Add(new PendingSetup(sessionId, boss, healthPercent, phase));
+		activeSessions.Add(new ActiveSession(sessionId, boss, Main.GameUpdateCount));
 
 		string phaseText = phase != null ? $" ({phase.Name})" : "";
 		Announce($"[Practice] {player.name} spawned {boss.DisplayName} at {healthPercent * 100f:0.#}% health{phaseText}.", InfoColor);
 		return true;
 	}
 
-	private static void SpawnPart(Player player, BossDefinition boss, int type)
-	{
-		int spawnedBefore = CapturedNPCs.Count(npc => npc.type == type);
-
-		if (boss.Style == SpawnStyle.WallOfFlesh) {
-			Main.wofNPCIndex = -1;
-			NPC.SpawnWOF(player.Center);
-			return;
-		}
-
-		// The vanilla routine finds an off-screen position and handles special cases (Golem needs an altar,
-		// Duke Fishron needs a bobber, ...). When it gives up, place the boss next to the player instead.
-		NPC.SpawnOnPlayer(player.whoAmI, type);
-		if (CapturedNPCs.Count(npc => npc.type == type) == spawnedBefore) {
-			Vector2 position = player.Center + boss.FallbackOffset;
-			NPC.SpawnBoss((int)position.X, (int)position.Y, type, player.whoAmI);
-		}
-	}
-
 	/// <summary>Server / singleplayer only. Called once per tick after NPCs update.</summary>
 	internal static void Update()
 	{
+		activeSessions.RemoveAll(session => !HasSessionNPCs(session.Id));
+
 		for (int i = pendingSetups.Count - 1; i >= 0; i--) {
 			PendingSetup setup = pendingSetups[i];
 			setup.Age++;
@@ -148,7 +129,7 @@ public static class PracticeManager
 
 			// Bosses spawn their parts during their first AI update (Moon Lord after a short intro).
 			bool ready = setup.Age >= 2 && setup.Boss.RequiredTypes.All(type => npcs.Any(npc => npc.type == type));
-			if (!ready && setup.Age < SetupTimeoutTicks) {
+			if (!ready && setup.Age < setup.Boss.SetupTimeoutTicks) {
 				continue;
 			}
 
@@ -181,6 +162,39 @@ public static class PracticeManager
 		finally {
 			ApplyingPhaseSetup = false;
 		}
+	}
+
+	/// <summary>
+	/// Finds the newest running practice fight that includes NPCs of this type. Used to tag parts that join a fight
+	/// without a parent entity source, such as bosses that summon each other.
+	/// </summary>
+	internal static bool TryFindSessionFor(int type, out int sessionId, out uint startTick)
+	{
+		for (int i = activeSessions.Count - 1; i >= 0; i--) {
+			if (activeSessions[i].Boss.AllTypes.Contains(type)) {
+				sessionId = activeSessions[i].Id;
+				startTick = activeSessions[i].StartTick;
+				return true;
+			}
+		}
+
+		sessionId = 0;
+		startTick = 0;
+		return false;
+	}
+
+	/// <summary>The boss of a running practice fight, or null if that fight is over.</summary>
+	internal static BossDefinition GetSessionBoss(int sessionId) => activeSessions.Find(session => session.Id == sessionId)?.Boss;
+
+	private static bool HasSessionNPCs(int sessionId)
+	{
+		foreach (NPC npc in Main.ActiveNPCs) {
+			if (npc.GetGlobalNPC<PracticeGlobalNPC>().SessionId == sessionId) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private static List<NPC> GetSessionNPCs(int sessionId)
@@ -241,6 +255,7 @@ public static class PracticeManager
 		}
 
 		pendingSetups.Clear();
+		activeSessions.Clear();
 		return count;
 	}
 
@@ -306,10 +321,13 @@ public static class PracticeManager
 	internal static void Unload()
 	{
 		pendingSetups.Clear();
+		activeSessions.Clear();
 		CapturedNPCs.Clear();
 		CapturingSessionId = 0;
 		lastSessionId = 0;
 	}
+
+	private sealed record ActiveSession(int Id, BossDefinition Boss, uint StartTick);
 
 	private sealed class PendingSetup(int sessionId, BossDefinition boss, float healthPercent, BossPhase phase)
 	{

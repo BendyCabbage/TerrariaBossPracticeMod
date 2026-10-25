@@ -1,6 +1,5 @@
-Keybinds: {
-	TogglePracticeMenu.DisplayName: Toggle Boss Practice Menu
-}
+Keybinds.TogglePracticeMenu.DisplayName: Toggle Boss Practice Menu
+UI.SearchHint: Search bosses
 
 Configs: {
 	PracticeConfig: {

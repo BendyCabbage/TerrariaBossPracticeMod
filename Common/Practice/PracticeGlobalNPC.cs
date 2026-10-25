@@ -1,7 +1,9 @@
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
+using BossPractice.Common.Bosses;
 using BossPractice.Common.Configs;
 
 namespace BossPractice.Common.Practice;
@@ -34,6 +36,10 @@ public sealed class PracticeGlobalNPC : GlobalNPC
 			SessionId = parentPractice.SessionId;
 			SpawnedAtTick = parentPractice.SpawnedAtTick;
 		}
+		else if (PracticeManager.TryFindSessionFor(npc.type, out int sessionId, out uint startTick)) {
+			SessionId = sessionId;
+			SpawnedAtTick = startTick;
+		}
 	}
 
 	public override bool PreKill(NPC npc)
@@ -47,8 +53,18 @@ public sealed class PracticeGlobalNPC : GlobalNPC
 			PracticeManager.Announce($"[Practice] {npc.FullName} defeated in {seconds:0.0}s.", new Color(120, 220, 255));
 		}
 
+		if (!ModContent.GetInstance<PracticeConfig>().DisableLootAndProgression) {
+			return true;
+		}
+
+		// Returning false also skips the NPC's own PreKill. Run it for parts that start the next stage there.
+		BossDefinition boss = PracticeManager.GetSessionBoss(SessionId);
+		if (npc.ModNPC != null && boss != null && boss.StageTransitionTypes.Contains(npc.type)) {
+			npc.ModNPC.PreKill();
+		}
+
 		// Returning false skips item drops, money, and death events such as "downed" flags,
 		// starting hardmode (Wall of Flesh) and starting the lunar events (Lunatic Cultist).
-		return !ModContent.GetInstance<PracticeConfig>().DisableLootAndProgression;
+		return false;
 	}
 }

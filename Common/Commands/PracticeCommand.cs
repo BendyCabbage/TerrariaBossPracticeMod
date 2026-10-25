@@ -17,7 +17,7 @@ public sealed class PracticeCommand : ModCommand
 	public override string Command => "practice";
 
 	public override string Usage =>
-		"/practice list\n" +
+		"/practice list [mod]\n" +
 		"/practice <boss> [health%] [phase <n>]\n" +
 		"/practice clear\n" +
 		"/practice night\n" +
@@ -33,7 +33,7 @@ public sealed class PracticeCommand : ModCommand
 
 		switch (args[0].ToLowerInvariant()) {
 			case "list":
-				ListBosses(caller);
+				ListBosses(caller, string.Join(' ', args.Skip(1)));
 				return;
 			case "clear":
 			case "despawn":
@@ -97,9 +97,17 @@ public sealed class PracticeCommand : ModCommand
 	private static string DescribePhases(BossDefinition boss) =>
 		string.Join('\n', boss.Phases.Select((phase, i) => $"  {i + 1}: {phase.Name} ({phase.HealthPercent * 100f:0.#}%)"));
 
-	private static void ListBosses(CommandCaller caller)
+	private static void ListBosses(CommandCaller caller, string modFilter)
 	{
-		foreach (BossDefinition boss in BossRegistry.Bosses) {
+		string filter = BossDefinition.Normalize(modFilter);
+		var bosses = BossRegistry.Bosses.Where(boss => filter.Length == 0
+			|| BossDefinition.Normalize(boss.ModName).Contains(filter)
+			|| BossDefinition.Normalize(boss.ModDisplayName).Contains(filter)).ToList();
+		if (bosses.Count == 0) {
+			throw new UsageException($"No bosses from a mod matching '{modFilter}'.");
+		}
+
+		foreach (BossDefinition boss in bosses) {
 			string phases = string.Join(", ", boss.Phases.Select((phase, i) => $"{i + 1}={phase.Name}"));
 			caller.Reply($"{boss.Key} - {boss.DisplayName} [{phases}]", PracticeManager.InfoColor);
 		}

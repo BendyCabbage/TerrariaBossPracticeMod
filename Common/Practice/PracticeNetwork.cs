@@ -15,11 +15,11 @@ public enum PracticeMessageType : byte
 /// <summary>Client to server requests. The server performs the action and replies through chat.</summary>
 public static class PracticeNetwork
 {
-	public static void SendSpawnRequest(int bossIndex, float healthPercent, int phaseIndex)
+	public static void SendSpawnRequest(string bossKey, float healthPercent, int phaseIndex)
 	{
 		ModPacket packet = ModContent.GetInstance<BossPracticeMod>().GetPacket();
 		packet.Write((byte)PracticeMessageType.Spawn);
-		packet.Write((short)bossIndex);
+		packet.Write(bossKey);
 		packet.Write(healthPercent);
 		packet.Write((sbyte)phaseIndex);
 		packet.Send();
@@ -39,12 +39,11 @@ public static class PracticeNetwork
 		var type = (PracticeMessageType)reader.ReadByte();
 		switch (type) {
 			case PracticeMessageType.Spawn: {
-				int bossIndex = reader.ReadInt16();
+				string bossKey = reader.ReadString();
 				float healthPercent = reader.ReadSingle();
 				int phaseIndex = reader.ReadSByte();
 
-				// Boss indices line up because the server and clients always have the same mods loaded.
-				BossDefinition boss = BossRegistry.Get(bossIndex);
+				BossDefinition boss = BossRegistry.Get(bossKey);
 				if (boss == null || float.IsNaN(healthPercent)) {
 					PracticeManager.Reply(player, "[Practice] Invalid spawn request.", PracticeManager.ErrorColor);
 					return;

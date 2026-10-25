@@ -66,6 +66,15 @@ public sealed class PhaseVariant(string label, Func<bool> isActive, IReadOnlyLis
 
 	/// <summary>Replaces the boss's own notes while this variant is active.</summary>
 	public string Notes { get; } = notes;
+
+	/// <summary>
+	/// Variants with a higher priority win over lower ones when several are active at once. Used by mods that build on
+	/// another mod's difficulty, e.g. Infernum replaces the AI that Calamity's Revengeance presets describe.
+	/// </summary>
+	public int Priority { get; init; }
+
+	/// <summary>Replaces <see cref="BossDefinition.ReadyTypes"/> while this variant is active, for reworks that spawn different parts.</summary>
+	public int[] ReadyTypes { get; init; }
 }
 
 public sealed class BossDefinition
@@ -151,7 +160,9 @@ public sealed class BossDefinition
 	public IReadOnlyList<BossPhase> DefaultPhases { get; init; } = [BossPhase.FullFight];
 
 	/// <summary>The variant whose condition currently holds, or null when the default phases apply.</summary>
-	public PhaseVariant ActiveVariant => phaseVariants.FirstOrDefault(variant => variant.IsActive());
+	public PhaseVariant ActiveVariant => phaseVariants
+		.OrderByDescending(variant => variant.Priority) // stable, so equal priorities keep the order they were added in
+		.FirstOrDefault(variant => variant.IsActive());
 
 	/// <summary>Phase presets for the current world. Evaluate again whenever they're used, because they follow difficulty modes.</summary>
 	public IReadOnlyList<BossPhase> Phases => ActiveVariant?.Phases ?? DefaultPhases;
@@ -160,7 +171,7 @@ public sealed class BossDefinition
 
 	public string DisplayName => displayName ?? Lang.GetNPCNameValue(PrimaryType);
 
-	public IEnumerable<int> RequiredTypes => ReadyTypes ?? HealthTypes;
+	public IEnumerable<int> RequiredTypes => ActiveVariant?.ReadyTypes ?? ReadyTypes ?? HealthTypes;
 
 	/// <summary>Every NPC type that belongs to this fight.</summary>
 	public IReadOnlySet<int> AllTypes => allTypes ??= [.. SpawnTypes, .. HealthTypes, .. ReadyTypes ?? [], .. RelatedTypes, PrimaryType];
@@ -175,7 +186,7 @@ public sealed class BossDefinition
 
 	/// <summary>
 	/// Adds a set of phases that replaces <see cref="DefaultPhases"/> while <see cref="PhaseVariant.IsActive"/> holds.
-	/// Variants are checked in the order they were added; the first active one wins.
+	/// Variants are checked by <see cref="PhaseVariant.Priority"/>, then in the order they were added; the first active one wins.
 	/// </summary>
 	public void AddPhaseVariant(PhaseVariant variant) => phaseVariants.Add(variant);
 

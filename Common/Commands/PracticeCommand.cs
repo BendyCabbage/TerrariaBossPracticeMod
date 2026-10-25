@@ -62,7 +62,8 @@ public sealed class PracticeCommand : ModCommand
 		}
 
 		float? healthPercent = null;
-		int phaseIndex = -1;
+		// Like the menu, start from the first phase, so its spawner and setup still run (some reworked bosses need them).
+		int phaseIndex = 0;
 		string[] options = args.Skip(nameLength).ToArray();
 		for (int i = 0; i < options.Length; i++) {
 			string option = options[i].ToLowerInvariant().TrimEnd('%');
@@ -81,7 +82,7 @@ public sealed class PracticeCommand : ModCommand
 		}
 
 		// An explicit health percentage overrides the phase's default.
-		float health = healthPercent ?? (phaseIndex >= 0 ? boss.Phases[phaseIndex].HealthPercent : 1f);
+		float health = healthPercent ?? boss.Phases[phaseIndex].HealthPercent;
 		PracticeManager.TrySpawn(caller.Player, boss, health, phaseIndex);
 	}
 

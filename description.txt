@@ -3,6 +3,7 @@ Practice any boss fight on demand.
 Press P (rebindable in Controls) to open the Boss Practice menu:
  - Pick any vanilla boss or modded boss, filtered by mod tab or search
  - Phase presets for Calamity, Thorium and Fargo's Souls bosses, including Revengeance/Death and Eternity Mode presets for vanilla bosses
+ - Infernum Mode presets for every boss it reworks, plus the Bereft Vassal
  - Choose how much health it starts with, or jump straight to a specific phase
  - Spawn it, despawn it, or make it night with one click
 

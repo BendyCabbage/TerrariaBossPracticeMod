@@ -322,8 +322,8 @@ public sealed partial class FargosSoulsBosses : BossSource
 			// The phase 2 preset spawns only the head, so there's nothing to wait for.
 			ReadyTypes = [],
 			RelatedTypes = [timberHead],
-			// The head is spawned from the body's PreKill, which also has to run when loot is disabled.
-			StageTransitionTypes = [timber],
+			// In Expert and above the body's PreKill spawns the head. In Classic the body is the final kill.
+			RunsOwnDeathCode = npc => npc.type == timber && Main.expertMode,
 			Notes = "Expert and Master: the head carries on after the body is beaten.",
 			DefaultPhases = [
 				new BossPhase("Phase 1", 1f, "Jumps, acorns and snowballs."),

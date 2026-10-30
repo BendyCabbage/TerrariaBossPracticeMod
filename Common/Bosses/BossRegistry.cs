@@ -37,7 +37,7 @@ public sealed class BossRegistry : ModSystem
 
 		// Stable sorts, so bosses with equal progression keep their registration order.
 		bosses.AddRange(registrar.Bosses.OrderBy(boss => boss.Progression ?? float.MaxValue));
-		bosses.AddRange(DiscoverUnknownBosses(registrar.Bosses));
+		bosses.AddRange(DiscoverUnknownBosses(registrar.Bosses, registrar.IgnoredTypes));
 
 		foreach (BossDefinition boss in bosses) {
 			byKey[boss.Key] = boss;
@@ -70,9 +70,9 @@ public sealed class BossRegistry : ModSystem
 	/// Lists modded NPCs flagged as bosses that no source claims. Their progression is unknown, so they're grouped
 	/// by mod and ordered by base health as a rough stand-in.
 	/// </summary>
-	private static IEnumerable<BossDefinition> DiscoverUnknownBosses(IEnumerable<BossDefinition> known)
+	private static IEnumerable<BossDefinition> DiscoverUnknownBosses(IEnumerable<BossDefinition> known, IEnumerable<int> ignored)
 	{
-		var claimed = known.SelectMany(boss => boss.AllTypes).ToHashSet();
+		var claimed = known.SelectMany(boss => boss.AllTypes).Concat(ignored).ToHashSet();
 		var discovered = new List<(ModNPC modNPC, int lifeMax)>();
 		for (int type = NPCID.Count; type < NPCLoader.NPCCount; type++) {
 			if (!claimed.Contains(type) && ContentSamples.NpcsByNetId.TryGetValue(type, out NPC sample) && sample.boss) {

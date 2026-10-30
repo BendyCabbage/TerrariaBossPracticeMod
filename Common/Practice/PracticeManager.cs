@@ -199,7 +199,7 @@ public static class PracticeManager
 	private static bool HasSessionNPCs(int sessionId)
 	{
 		foreach (NPC npc in Main.ActiveNPCs) {
-			if (npc.GetGlobalNPC<PracticeGlobalNPC>().SessionId == sessionId) {
+			if (PracticeGlobalNPC.GetSessionId(npc) == sessionId) {
 				return true;
 			}
 		}
@@ -211,7 +211,7 @@ public static class PracticeManager
 	{
 		List<NPC> npcs = [];
 		foreach (NPC npc in Main.ActiveNPCs) {
-			if (npc.GetGlobalNPC<PracticeGlobalNPC>().SessionId == sessionId) {
+			if (PracticeGlobalNPC.GetSessionId(npc) == sessionId) {
 				npcs.Add(npc);
 			}
 		}
@@ -235,7 +235,7 @@ public static class PracticeManager
 	{
 		bool[] remove = new bool[Main.maxNPCs];
 		foreach (NPC npc in Main.ActiveNPCs) {
-			remove[npc.whoAmI] = npc.boss || npc.GetGlobalNPC<PracticeGlobalNPC>().IsPractice;
+			remove[npc.whoAmI] = npc.boss || PracticeGlobalNPC.IsPractice(npc);
 		}
 
 		foreach (NPC npc in Main.ActiveNPCs) {
@@ -335,6 +335,7 @@ public static class PracticeManager
 		CapturedNPCs.Clear();
 		CapturingSessionId = 0;
 		lastSessionId = 0;
+		PracticeGlobalNPC.ClearTags();
 	}
 
 	private sealed record ActiveSession(int Id, BossDefinition Boss, uint StartTick);

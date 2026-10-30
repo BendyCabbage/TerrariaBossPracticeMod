@@ -78,10 +78,14 @@ public sealed class BossRegistrar
 {
 	private readonly List<BossDefinition> bosses = [];
 	private readonly Dictionary<string, BossDefinition> byKey = [];
+	private readonly HashSet<int> ignoredTypes = [];
 
 	internal BossSource CurrentSource { get; set; }
 
 	internal IReadOnlyList<BossDefinition> Bosses => bosses;
+
+	/// <summary>NPC types that are flagged as bosses but must never be listed.</summary>
+	internal IReadOnlySet<int> IgnoredTypes => ignoredTypes;
 
 	/// <summary>Adds a boss from the current source. Bosses that reference missing NPCs are skipped with a warning.</summary>
 	public void Add(BossDefinition boss)
@@ -98,6 +102,15 @@ public sealed class BossRegistrar
 		}
 
 		bosses.Add(boss);
+	}
+
+	/// <summary>
+	/// Keeps NPCs that are flagged as bosses but aren't real fights (test dummies, invisible controllers) out of the
+	/// automatically discovered bosses. Missing types (0) are ignored.
+	/// </summary>
+	public void Ignore(params int[] types)
+	{
+		ignoredTypes.UnionWith(types.Where(type => type > 0));
 	}
 
 	/// <summary>Finds a registered boss, e.g. <c>Find("Terraria", "eye")</c>. Returns null if it isn't registered.</summary>

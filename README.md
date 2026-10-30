@@ -121,9 +121,10 @@ public sealed class ExampleModBosses : BossSource
 
 Things a source can use:
 
-- **`BossDefinition`**: `HealthTypes` (which NPCs get the chosen health), `ReadyTypes` (parts to wait for before applying it), `RelatedTypes`, `Spawner` (see `BossSpawners`), `CheckCanSpawn`, `Notes`, `SetupTimeoutTicks`, and `StageTransitionTypes` (parts whose own `PreKill` spawns the next stage, which must still run when loot is disabled).
+- **`BossDefinition`**: `HealthTypes` (which NPCs get the chosen health), `ReadyTypes` (parts to wait for before applying it), `RelatedTypes`, `Spawner` (see `BossSpawners`), `CheckCanSpawn`, `Notes`, `SetupTimeoutTicks`, and `RunsOwnDeathCode` (dying NPCs whose own `PreKill`/`OnKill` start the next stage, e.g. a second form or the next boss's turn, and must still run when loot is disabled).
 - **`BossPhase`**: a starting health (a fixed value, or a function for difficulty-dependent thresholds), an optional `Setup` run once the fight exists (see `PhaseSetups`: kill parts, set AI values, ...) and an optional per-phase `Spawner`.
 - **`PhaseVariant`**: a whole set of phases that replaces the defaults while a condition holds, e.g. a difficulty mode. `ModifyBosses` can add these to other sources' bosses, including vanilla ones.
 - **`CallMod`**: calls the mod's public `Mod.Call` API, for example to check a difficulty mode.
+- **`registrar.Ignore`**: hides NPCs that are flagged as bosses but aren't real fights (test dummies, invisible controllers) from automatic discovery.
 
 If the mod renames an NPC, only the bosses using it are skipped (with a warning in `client.log`); they then show up through automatic discovery instead.

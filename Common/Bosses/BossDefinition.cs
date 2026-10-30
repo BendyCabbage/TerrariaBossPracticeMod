@@ -130,10 +130,12 @@ public sealed class BossDefinition
 	public int[] RelatedTypes { get => relatedTypes; init => relatedTypes = value.Where(type => type > 0).ToArray(); }
 
 	/// <summary>
-	/// NPC types whose own PreKill hook starts the next stage of the fight, such as spawning a second form. With loot and
-	/// progression disabled, Boss Practice still runs that hook for them (but not loot or OnKill), so the fight continues.
+	/// For fights whose next stage starts in a dying NPC's own death code (spawning a second form, handing the turn to
+	/// the next boss). Returns true for dying NPCs whose ModNPC PreKill and OnKill should still run while loot and
+	/// progression are disabled, as tModLoader would run them. Loot and money are never dropped. Null runs none.
+	/// Leave the fight's real final kill out, since OnKill is usually where a mod marks the boss as defeated.
 	/// </summary>
-	public int[] StageTransitionTypes { get; init; } = [];
+	public Func<NPC, bool> RunsOwnDeathCode { get; init; }
 
 	public BossSpawner Spawner { get; init; } = BossSpawners.Default;
 

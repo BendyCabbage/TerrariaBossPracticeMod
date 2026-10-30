@@ -1,3 +1,4 @@
+using System.Linq;
 using Terraria;
 
 namespace BossPractice.Common.Bosses.Sources;
@@ -15,6 +16,9 @@ public sealed class ThoriumBosses : BossSource
 
 	public override void AddBosses(BossRegistrar registrar)
 	{
+		// A test target flagged as a boss so homing and life steal work on it; it can't be spawned normally.
+		registrar.Ignore(NPCType("BossDummy"));
+
 		int thunderBird = NPCType("TheGrandThunderBird");
 		registrar.Add(new BossDefinition("TheGrandThunderBird", thunderBird) {
 			Progression = 0.5f, // ESTIMATED: before King Slime.
@@ -167,17 +171,23 @@ public sealed class ThoriumBosses : BossSource
 		int slagFury = NPCType("SlagFury");
 		int aquaius = NPCType("Aquaius");
 		int omnicide = NPCType("Omnicide");
+		int[] primordials = [slagFury, aquaius, omnicide];
 		registrar.Add(new BossDefinition("ThePrimordials", slagFury, "The Primordials") {
 			Progression = 19.5f, // Thorium's own Boss Checklist value.
 			Aliases = ["primordials", "ragnarok"],
 			SpawnTypes = [slagFury, aquaius, omnicide],
 			HealthTypes = [slagFury, aquaius, omnicide],
+			// A dying Primordial's death code hands the turn to the next one; without it the others stay idle.
+			// In Expert the last one's death code also summons Dream Eater, which is then the final kill.
+			// In Classic the last Primordial is the final kill, so its death code (the defeat) stays blocked.
+			RunsOwnDeathCode = npc => primordials.Contains(npc.type)
+				&& (Main.expertMode || AnyOtherAlive(npc, primordials)),
 			// Dream Eater (Expert) follows the last Primordial's death; the rest are minions and its rings.
 			RelatedTypes = [
 				NPCType("DreamEater"), NPCType("AquaiusBubble"), NPCType("LucidBubble"),
 				NPCType("ImpendingDread"), NPCType("UnstableAnger"), NPCType("InnerDespair"),
 			],
-			Notes = "Health applies to all three Primordials, which take turns attacking. They don't flee at dawn.",
+			Notes = "Health applies to all three Primordials, which take turns attacking. Expert and Master: Dream Eater follows the last one. They don't flee at dawn.",
 			DefaultPhases = [
 				new BossPhase("Phase 1", 1f, "All three in their first phase."),
 				// Wiki: Slag Fury and Omnicide change phase every 33% lost, Aquaius every 25%.
@@ -186,5 +196,16 @@ public sealed class ThoriumBosses : BossSource
 				new BossPhase("Last phases", 0.24f, "All three in their last phase."),
 			],
 		});
+	}
+
+	private static bool AnyOtherAlive(NPC npc, int[] types)
+	{
+		foreach (NPC other in Main.ActiveNPCs) {
+			if (other.whoAmI != npc.whoAmI && types.Contains(other.type)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

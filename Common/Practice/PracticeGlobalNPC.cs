@@ -1,4 +1,4 @@
-using System.Linq;
+using System;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
@@ -14,42 +14,53 @@ namespace BossPractice.Common.Practice;
 /// </summary>
 public sealed class PracticeGlobalNPC : GlobalNPC
 {
-	public override bool InstancePerEntity => true;
+	// Tags are stored per NPC slot rather than on a GlobalNPC instance. Bosses that change form with NPC.Transform
+	// (Thorium's Borean Strider, Lich, ...) go through SetDefaults again, which replaces every GlobalNPC instance;
+	// Transform keeps the slot, so the tag survives. Every newly spawned NPC overwrites its slot's tag in OnSpawn.
+	private static readonly int[] sessionIds = new int[Main.maxNPCs + 1];
+	private static readonly uint[] spawnTicks = new uint[Main.maxNPCs + 1];
 
 	/// <summary>Identifies the practice fight this NPC belongs to. 0 means not part of a practice fight.</summary>
-	public int SessionId { get; set; }
+	public static int GetSessionId(NPC npc) => sessionIds[npc.whoAmI];
 
-	public uint SpawnedAtTick { get; set; }
+	public static bool IsPractice(NPC npc) => GetSessionId(npc) != 0;
 
-	public bool IsPractice => SessionId != 0;
+	internal static void ClearTags()
+	{
+		Array.Clear(sessionIds);
+		Array.Clear(spawnTicks);
+	}
 
 	public override void OnSpawn(NPC npc, IEntitySource source)
 	{
+		int sessionId = 0;
+		uint startTick = 0;
 		if (PracticeManager.CapturingSessionId != 0) {
-			SessionId = PracticeManager.CapturingSessionId;
-			SpawnedAtTick = Main.GameUpdateCount;
+			sessionId = PracticeManager.CapturingSessionId;
+			startTick = Main.GameUpdateCount;
 			PracticeManager.CapturedNPCs.Add(npc);
-			return;
+		}
+		else if (source is EntitySource_Parent { Entity: NPC parent } && IsPractice(parent)) {
+			sessionId = GetSessionId(parent);
+			startTick = spawnTicks[parent.whoAmI];
+		}
+		else {
+			PracticeManager.TryFindSessionFor(npc.type, out sessionId, out startTick);
 		}
 
-		if (source is EntitySource_Parent { Entity: NPC parent } && parent.TryGetGlobalNPC(out PracticeGlobalNPC parentPractice) && parentPractice.IsPractice) {
-			SessionId = parentPractice.SessionId;
-			SpawnedAtTick = parentPractice.SpawnedAtTick;
-		}
-		else if (PracticeManager.TryFindSessionFor(npc.type, out int sessionId, out uint startTick)) {
-			SessionId = sessionId;
-			SpawnedAtTick = startTick;
-		}
+		sessionIds[npc.whoAmI] = sessionId;
+		spawnTicks[npc.whoAmI] = startTick;
 	}
 
 	public override bool PreKill(NPC npc)
 	{
-		if (!IsPractice) {
+		int sessionId = GetSessionId(npc);
+		if (sessionId == 0) {
 			return true;
 		}
 
 		if (npc.boss && !PracticeManager.ApplyingPhaseSetup) {
-			float seconds = (Main.GameUpdateCount - SpawnedAtTick) / 60f;
+			float seconds = (Main.GameUpdateCount - spawnTicks[npc.whoAmI]) / 60f;
 			PracticeManager.Announce($"[Practice] {npc.FullName} defeated in {seconds:0.0}s.", new Color(120, 220, 255));
 		}
 
@@ -57,10 +68,11 @@ public sealed class PracticeGlobalNPC : GlobalNPC
 			return true;
 		}
 
-		// Returning false also skips the NPC's own PreKill. Run it for parts that start the next stage there.
-		BossDefinition boss = PracticeManager.GetSessionBoss(SessionId);
-		if (npc.ModNPC != null && boss != null && boss.StageTransitionTypes.Contains(npc.type)) {
-			npc.ModNPC.PreKill();
+		// Returning false also skips the NPC's own PreKill and OnKill. Run them, in tModLoader's order, for NPCs whose
+		// death starts the next stage of the fight.
+		BossDefinition boss = PracticeManager.GetSessionBoss(sessionId);
+		if (npc.ModNPC != null && boss?.RunsOwnDeathCode?.Invoke(npc) == true && npc.ModNPC.PreKill()) {
+			npc.ModNPC.OnKill();
 		}
 
 		// Returning false skips item drops, money, and death events such as "downed" flags,

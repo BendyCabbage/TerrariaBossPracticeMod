@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent.Achievements;
 using Terraria.ModLoader;
 using BossPractice.Common.Bosses;
 using BossPractice.Common.Configs;
@@ -24,6 +25,20 @@ public sealed class PracticeGlobalNPC : GlobalNPC
 	public static int GetSessionId(NPC npc) => sessionIds[npc.whoAmI];
 
 	public static bool IsPractice(NPC npc) => GetSessionId(npc) != 0;
+
+	/// <summary>True when this NPC's death must not count for anything: loot, progression or achievements.</summary>
+	private static bool BlocksDeathEffects(NPC npc) => IsPractice(npc) && ModContent.GetInstance<PracticeConfig>().DisableLootAndProgression;
+
+	public override void Load()
+	{
+		// Kill achievements ("Eye on You", ...) are awarded outside PreKill, so returning false there doesn't stop them.
+		// In multiplayer this is also where the server tells each player who hit the NPC about the kill.
+		On_AchievementsHelper.NotifyNPCKilled += (orig, npc) => {
+			if (!BlocksDeathEffects(npc)) {
+				orig(npc);
+			}
+		};
+	}
 
 	internal static void ClearTags()
 	{
@@ -64,7 +79,7 @@ public sealed class PracticeGlobalNPC : GlobalNPC
 			PracticeManager.Announce($"[Practice] {npc.FullName} defeated in {seconds:0.0}s.", new Color(120, 220, 255));
 		}
 
-		if (!ModContent.GetInstance<PracticeConfig>().DisableLootAndProgression) {
+		if (!BlocksDeathEffects(npc)) {
 			return true;
 		}
 

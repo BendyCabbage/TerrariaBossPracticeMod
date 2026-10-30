@@ -11,7 +11,7 @@ Spawn any Terraria boss on demand. You choose how much health it starts with, or
   - **Starting point** presets for each boss phase (see below)
   - **Spawn**, **Despawn all** and **Make night** buttons
 - **Chat command** that does the same as the menu (see below)
-- **No side effects by default**: practice bosses drop no loot and don't trigger death events. That means no "downed" flags, no hardmode from the Wall of Flesh, and no lunar events from the Lunatic Cultist. You can turn this off in the mod config.
+- **No side effects by default**: practice bosses drop no loot and don't trigger death events. That means no "downed" flags, no kill achievements, no hardmode from the Wall of Flesh, and no lunar events from the Lunatic Cultist. You can turn this off in the mod config.
 - When you kill a boss, chat shows how long the fight took, e.g. `[Practice] Plantera defeated in 84.2s.`
 - **Multiplayer**: spawning runs on the server and is synced to every player.
 

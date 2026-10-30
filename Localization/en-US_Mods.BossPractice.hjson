@@ -9,7 +9,7 @@ Configs: {
 			Label: Disable loot and world progression
 			Tooltip:
 				'''
-				Practice bosses drop nothing and don't trigger death events:
+				Practice bosses drop nothing, don't unlock kill achievements and don't trigger death events:
 				no "downed" flags, no hardmode from the Wall of Flesh, no lunar events from the Lunatic Cultist.
 				'''
 		}

@@ -39,6 +39,8 @@ public sealed class PracticeMenuState : UIState
 	private HealthSlider slider;
 	private UIList phaseList;
 	private UIText phaseDescriptionText;
+	private PracticeButton timeButton;
+	private bool? timeButtonShowsDay;
 
 	private BossDefinition selectedBoss;
 	private int selectedPhase = -1;
@@ -263,10 +265,18 @@ public sealed class PracticeMenuState : UIState
 		spawnButton.OnLeftClick += (_, _) => Spawn();
 		var despawnButton = new PracticeButton("Despawn all");
 		despawnButton.OnLeftClick += (_, _) => PracticeManager.RequestDespawn();
-		var nightButton = new PracticeButton("Make night");
-		nightButton.OnLeftClick += (_, _) => PracticeManager.RequestNight();
+		timeButton = new PracticeButton("");
+		timeButton.OnLeftClick += (_, _) => {
+			if (Main.dayTime) {
+				PracticeManager.RequestNight();
+			}
+			else {
+				PracticeManager.RequestDay();
+			}
+		};
+		RefreshTimeButton();
 
-		PracticeButton[] bottomButtons = [spawnButton, despawnButton, nightButton];
+		PracticeButton[] bottomButtons = [spawnButton, despawnButton, timeButton];
 		for (int i = 0; i < bottomButtons.Length; i++) {
 			PracticeButton button = bottomButtons[i];
 			button.Top.Set(-40f, 1f);
@@ -378,6 +388,18 @@ public sealed class PracticeMenuState : UIState
 		healthText.SetText($"Starting health: {slider.Value * 100f:0}%");
 	}
 
+	/// <summary>Labels the time button with whichever switch it will make. Time can change on its own or from the server, so this runs every update.</summary>
+	private void RefreshTimeButton()
+	{
+		bool showDay = !Main.dayTime;
+		if (showDay == timeButtonShowsDay) {
+			return;
+		}
+
+		timeButtonShowsDay = showDay;
+		timeButton.SetText(showDay ? "Make day" : "Make night");
+	}
+
 	private void Spawn()
 	{
 		if (selectedBoss == null) {
@@ -405,6 +427,8 @@ public sealed class PracticeMenuState : UIState
 
 		clickedElsewhere = false;
 		clickedSearchBar = false;
+
+		RefreshTimeButton();
 
 		if (panel.ContainsPoint(Main.MouseScreen)) {
 			Main.LocalPlayer.mouseInterface = true;

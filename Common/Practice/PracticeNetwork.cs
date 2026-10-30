@@ -10,6 +10,7 @@ public enum PracticeMessageType : byte
 	Spawn,
 	Despawn,
 	MakeNight,
+	MakeDay,
 }
 
 /// <summary>Client to server requests. The server performs the action and replies through chat.</summary>
@@ -57,6 +58,9 @@ public static class PracticeNetwork
 				break;
 			case PracticeMessageType.MakeNight:
 				PracticeManager.MakeNight(player);
+				break;
+			case PracticeMessageType.MakeDay:
+				PracticeManager.MakeDay(player);
 				break;
 		}
 	}

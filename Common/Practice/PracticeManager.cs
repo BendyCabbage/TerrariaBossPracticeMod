@@ -66,6 +66,16 @@ public static class PracticeManager
 		MakeNight(Main.LocalPlayer);
 	}
 
+	public static void RequestDay()
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient) {
+			PracticeNetwork.SendSimpleRequest(PracticeMessageType.MakeDay);
+			return;
+		}
+
+		MakeDay(Main.LocalPlayer);
+	}
+
 	/// <summary>Server / singleplayer only.</summary>
 	public static bool TrySpawn(Player player, BossDefinition boss, float healthPercent, int phaseIndex)
 	{

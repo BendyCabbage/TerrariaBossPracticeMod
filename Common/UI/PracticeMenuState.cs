@@ -239,9 +239,16 @@ public sealed class PracticeMenuState : UIState
 			ManualSortMethod = _ => { },
 		};
 		phaseList.Top.Set(228f, 0f);
-		phaseList.Width.Set(0f, 1f);
+		phaseList.Width.Set(-26f, 1f);
 		phaseList.Height.Set(-228f - 96f, 1f);
 		column.Append(phaseList);
+
+		var phaseScrollbar = new UIScrollbar();
+		phaseScrollbar.Left.Set(-20f, 1f);
+		phaseScrollbar.Top.Set(228f + 6f, 0f);
+		phaseScrollbar.Height.Set(-228f - 96f - 12f, 1f);
+		column.Append(phaseScrollbar);
+		phaseList.SetScrollbar(phaseScrollbar);
 
 		phaseDescriptionText = new UIText("", 0.8f) {
 			IsWrapped = true,
@@ -344,6 +351,7 @@ public sealed class PracticeMenuState : UIState
 			phaseButtons.Add(button);
 		}
 
+		phaseList.ViewPosition = 0f;
 		SelectPhase(0);
 	}
 

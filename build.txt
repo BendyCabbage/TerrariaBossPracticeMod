@@ -1,5 +1,5 @@
 displayName = Boss Practice
 author = Josh Caithness
-version = 0.1
+version = 1.0
 homepage =
 side = Both
